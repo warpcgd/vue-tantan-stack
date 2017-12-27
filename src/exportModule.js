@@ -1,2 +1,2 @@
-import slider from './components/slider'
-export default slider
+import stack from './components/stack'
+export default stack

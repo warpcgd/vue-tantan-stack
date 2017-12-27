@@ -15,7 +15,7 @@ module.exports = {
   output: {
     path: './dist/',
     filename: '[name].js',
-    library: 'vue-concise-slider',
+    library: 'vue-tantan-stack',
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
