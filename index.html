@@ -10,7 +10,7 @@
     <title>slider</title>
     <style>
     body {
-        background: #add8df none repeat scroll 0 0;
+        background: #565f77 none repeat scroll 0 0;
         color: #000;
         font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
         font-size: 14px;
@@ -25,6 +25,8 @@
         /*bug:当内容超过一屏时，滚动条需要默认显示*/
         overflow-y: scroll;
         width: 100%;
+        height: 100%;
+        position: absolute;
     }
 
     h3 {
@@ -64,6 +66,13 @@
         -webkit-box-sizing: border-box;
         -moz-box-sizing: border-box;
         box-sizing: border-box;
+    }
+    .main{
+        display:flex;/*Flex布局*/
+        display: -webkit-flex; /* Safari */
+        align-items:center;/*指定垂直居中*/
+        justify-content:center;/*指定水平居中*/
+        height: 100%;
     }
     </style>
 </head>

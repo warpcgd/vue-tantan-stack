@@ -1,13 +1,13 @@
 <template>
-    <ul class='stack-container'>
-      <li v-for="(item, index) in pages"
-      :style="[styleIndex(index),transform(index)]"
-      @touchmove="touchmove"
-      @touchstart="touchstart"
-      @touchend="touchend"
-      @mousedown="touchstart"
-      @mouseup="touchend"
-      @mousemove="touchmove"
+    <ul class="stack">
+      <li class="stack-item" v-for="(item, index) in pages"
+      :style="[transformIndex(index),transform(index)]"
+      @touchmove.stop.prevent="touchmove"
+      @touchstart.stop.prevent="touchstart"
+      @touchend.stop.prevent="touchend"
+      @mousedown.stop.prevent="touchstart"
+      @mouseup.stop.prevent="touchend"
+      @mousemove.stop.prevent="touchmove"
       @webkit-transition-end="onTransitionEnd(index)"
       @transitionend="onTransitionEnd(index)">
         <div v-html="item.html"></div>
@@ -17,7 +17,16 @@
 <script>
 import detectPrefixes from '../utils/detect-prefixes.js'
 export default {
-  props: ['stackinit', 'pages'],
+  props: {
+    stackinit: {
+      type: Object,
+      default: []
+    },
+    pages: {
+      type: Array,
+      default: {}
+    }
+  },
   data () {
     return {
       basicdata: {
@@ -51,20 +60,21 @@ export default {
       if (this.temporaryData.tracking) {
         return
       }
+      // 是否为touch
       if (e.type === 'touchstart') {
         if (e.touches.length > 1) {
           this.temporaryData.tracking = false
           return
         } else {
-          /* Hack - would normally use e.timeStamp but it's whack in Fx/Android */
+          // 记录起始位置
           this.basicdata.start.t = new Date().getTime()
           this.basicdata.start.x = e.targetTouches[0].clientX
           this.basicdata.start.y = e.targetTouches[0].clientY
           this.basicdata.end.x = e.targetTouches[0].clientX
           this.basicdata.end.y = e.targetTouches[0].clientY
         }
+      // pc操作
       } else {
-        /* Hack - would normally use e.timeStamp but it's whack in Fx/Android */
         this.basicdata.start.t = new Date().getTime()
         this.basicdata.start.x = e.clientX
         this.basicdata.start.y = e.clientY
@@ -75,16 +85,16 @@ export default {
       this.temporaryData.animation = false
     },
     touchmove (e) {
+      // 记录滑动位置
       if (this.temporaryData.tracking && !this.temporaryData.animation) {
         if (e.type === 'touchmove') {
-          e.preventDefault()
           this.basicdata.end.x = e.targetTouches[0].clientX
           this.basicdata.end.y = e.targetTouches[0].clientY
         } else {
-          e.preventDefault()
           this.basicdata.end.x = e.clientX
           this.basicdata.end.y = e.clientY
         }
+        // 计算滑动值
         this.temporaryData.poswidth = this.basicdata.end.x - this.basicdata.start.x
         this.temporaryData.posheight = this.basicdata.end.y - this.basicdata.start.y
       }
@@ -92,18 +102,25 @@ export default {
     touchend (e) {
       this.temporaryData.tracking = false
       this.temporaryData.animation = true
-      if (Math.abs(this.temporaryData.poswidth) >= 200) {
+      // 滑动结束，触发判断
+      // 简单判断滑动宽度触发滑出
+      if (Math.abs(this.temporaryData.poswidth) >= 100) {
+        let ratio = Math.abs(this.temporaryData.posheight / this.temporaryData.poswidth)
         this.temporaryData.poswidth = this.temporaryData.poswidth >= 0 ? this.temporaryData.poswidth + 200 : this.temporaryData.poswidth - 200
-        this.temporaryData.lastPosWidth = this.temporaryData.poswidth
-        this.temporaryData.lastPosHeight = this.temporaryData.posheight
+        this.temporaryData.posheight = this.temporaryData.posheight >= 0 ? Math.abs(this.temporaryData.poswidth * ratio) : -Math.abs(this.temporaryData.poswidth * ratio)
         this.temporaryData.opacity = 0
         this.temporaryData.swipe = true
-        this.temporaryData.currentPage = this.temporaryData.currentPage < this.pages.length - 1 ? this.temporaryData.currentPage + 1 : 0
+        // 记录最终滑动距离
+        this.temporaryData.lastPosWidth = this.temporaryData.poswidth
+        this.temporaryData.lastPosHeight = this.temporaryData.posheight
+        this.temporaryData.currentPage += 1
+        // currentPage切换，整体dom进行变化，把第一层滑动置零
         this.$nextTick(() => {
           this.temporaryData.poswidth = 0
           this.temporaryData.posheight = 0
           this.temporaryData.opacity = 1
         })
+      // 不满足条件则滑入
       } else {
         this.temporaryData.poswidth = 0
         this.temporaryData.posheight = 0
@@ -111,6 +128,7 @@ export default {
       }
     },
     onTransitionEnd (index) {
+      // dom发生变化正在执行的动画滑动序列已经变为上一层
       if (this.temporaryData.swipe && index === this.temporaryData.currentPage - 1) {
         this.temporaryData.animation = true
         this.temporaryData.lastPosWidth = 0
@@ -119,11 +137,13 @@ export default {
         this.temporaryData.swipe = false
       }
     },
+    // 非首页样式切换
     transform (index) {
       if (index > this.temporaryData.currentPage) {
         let style = {}
         let visible = this.temporaryData.visible
         let perIndex = index - this.temporaryData.currentPage
+        // visible可见数量前滑块的样式
         if (index <= this.temporaryData.currentPage + visible - 1) {
           style['opacity'] = '1'
           style['transform'] = 'translate3D(0,0,' + -1 * perIndex * 60 + 'px' + ')'
@@ -135,6 +155,7 @@ export default {
           style['transform'] = 'translate3D(0,0,' + -1 * visible * 60 + 'px' + ')'
         }
         return style
+        // 已滑动模块释放后
       } else if (index === this.temporaryData.currentPage - 1) {
         let style = {}
         style['transform'] = 'translate3D(' + this.temporaryData.lastPosWidth + 'px' + ',' + this.temporaryData.lastPosHeight + 'px' + ',0px)'
@@ -145,7 +166,9 @@ export default {
         return style
       }
     },
-    styleIndex (index) {
+    // 首页样式切换
+    transformIndex (index) {
+      // 处理3D效果
       if (index === this.temporaryData.currentPage) {
         let style = {}
         style['transform'] = 'translate3D(' + this.temporaryData.poswidth + 'px' + ',' + this.temporaryData.posheight + 'px' + ',0px)'
@@ -157,59 +180,47 @@ export default {
         }
         return style
       }
-    },
-    isQueue (index) {
-      // let currentPage = this.temporaryData.currentPage
-      // let visible = this.temporaryData.visible
-      // let pageLength = this.pages.length
     }
   }
 }
 </script>
 <style>
-  .stack-container{
+  .stack {
+    width: 100%;
+    height: 100%;
     position: relative;
-    margin: 40px auto;
-    padding: 0;
-    width: 340px;
-    height: 380px;
-    list-style: none;
-    -webkit-perspective: 1000px;
-    -webkit-perspective-origin: 50% 150%;
     perspective: 1000px;
     perspective-origin: 50% 150%;
+    -webkit-perspective: 1000px;
+    -webkit-perspective-origin: 50% 150%;
+    margin: 0;
+    padding: 0;
   }
-  .stack-container li{
+  .stack-item{
+    ackground: #fff;
+    height: 100%;
+    width: 100%;
+    border-radius: 4px;
+    text-align: center;
+    overflow: hidden;
     position: absolute;
-    z-index: 1;
-    width: 340px;
-    height: 380px;
-    border-width: 60px 20px;
-    border-style: solid;
-    border-color: #fff;
-    box-shadow: 0 10px 7px -7px rgba(0,0,0,0.12), 0 0 4px rgba(0,0,0,0.1);
     opacity: 0;
-    cursor: pointer;
-/*    -webkit-transform: translate3d(0,0,-180px);
-    transform: translate3d(0,0,-180px);
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;*/
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    pointer-events: auto;
   }
-  .stack-container li img {
+  .stack-item img {
+    width: 100%;
     display: block;
-  }
-  .stack-container li h5 {
-    margin: 0 5px;
-    color: #143f51;
-    height: 60px;
-    text-align: right;
-    font-size: 1.4em;
-    font-family: "Sacramento", cursive;
-    line-height: 60px;
-  }
-  .stack-container li.animate {
-    -webkit-transition: all 0.3s ease-out;
-    transition: all 0.3s ease-out;
+    pointer-events: none;
   }
   .stack-container li.move-back {
     /* http://matthewlein.com/ceaser/ */
