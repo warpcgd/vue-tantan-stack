@@ -103,7 +103,7 @@ export default {
       this.temporaryData.tracking = false
       this.temporaryData.animation = true
       // 滑动结束，触发判断
-      // 简单判断滑动宽度触发滑出
+      // 简单判断滑动宽度大于等于100触发滑出
       if (Math.abs(this.temporaryData.poswidth) >= 100) {
         let ratio = Math.abs(this.temporaryData.posheight / this.temporaryData.poswidth)
         this.temporaryData.poswidth = this.temporaryData.poswidth >= 0 ? this.temporaryData.poswidth + 200 : this.temporaryData.poswidth - 200
@@ -113,7 +113,8 @@ export default {
         // 记录最终滑动距离
         this.temporaryData.lastPosWidth = this.temporaryData.poswidth
         this.temporaryData.lastPosHeight = this.temporaryData.posheight
-        this.temporaryData.currentPage += 1
+        // 循环
+        this.temporaryData.currentPage = this.temporaryData.currentPage === this.pages.length - 1 ? 0 : this.temporaryData.currentPage + 1
         // currentPage切换，整体dom进行变化，把第一层滑动置零
         this.$nextTick(() => {
           this.temporaryData.poswidth = 0
@@ -128,8 +129,9 @@ export default {
       }
     },
     onTransitionEnd (index) {
+      let lastPage = this.temporaryData.currentPage === 0 ? this.pages.length - 1 : this.temporaryData.currentPage - 1
       // dom发生变化正在执行的动画滑动序列已经变为上一层
-      if (this.temporaryData.swipe && index === this.temporaryData.currentPage - 1) {
+      if (this.temporaryData.swipe && index === lastPage) {
         this.temporaryData.animation = true
         this.temporaryData.lastPosWidth = 0
         this.temporaryData.lastPosHeight = 0
@@ -137,38 +139,50 @@ export default {
         this.temporaryData.swipe = false
       }
     },
+    inStack (index, currentPage) {
+      let stack = []
+      let visible = this.temporaryData.visible
+      let length = this.pages.length
+      for (let i = 0; i < visible; i++) {
+        if (currentPage + i < length) {
+          stack.push(currentPage + i)
+        } else {
+          stack.push(currentPage + i - length)
+        }
+      }
+      return stack.indexOf(index) >= 0
+    },
     // 非首页样式切换
     transform (index) {
-      if (index > this.temporaryData.currentPage) {
-        let style = {}
-        let visible = this.temporaryData.visible
-        let perIndex = index - this.temporaryData.currentPage
-        // visible可见数量前滑块的样式
-        if (index <= this.temporaryData.currentPage + visible - 1) {
-          style['opacity'] = '1'
-          style['transform'] = 'translate3D(0,0,' + -1 * perIndex * 60 + 'px' + ')'
-          style['zIndex'] = visible - index + this.temporaryData.currentPage
-          style[this.temporaryData.prefixes.transition + 'TimingFunction'] = 'ease'
-          style[this.temporaryData.prefixes.transition + 'Duration'] = 300 + 'ms'
-        } else {
-          style['zIndex'] = '-1'
-          style['transform'] = 'translate3D(0,0,' + -1 * visible * 60 + 'px' + ')'
-        }
-        return style
-        // 已滑动模块释放后
-      } else if (index === this.temporaryData.currentPage - 1) {
-        let style = {}
+      let currentPage = this.temporaryData.currentPage
+      let length = this.pages.length
+      let lastPage = currentPage === 0 ? this.pages.length - 1 : currentPage - 1
+      let style = {}
+      let visible = this.temporaryData.visible
+      if (index === this.temporaryData.currentPage) {
+        return
+      }
+      if (this.inStack(index, currentPage)) {
+        let perIndex = index - currentPage > 0 ? index - currentPage : index - currentPage + length
+        style['opacity'] = '1'
+        style['transform'] = 'translate3D(0,0,' + -1 * perIndex * 60 + 'px' + ')'
+        style['zIndex'] = visible - perIndex
+        style[this.temporaryData.prefixes.transition + 'TimingFunction'] = 'ease'
+        style[this.temporaryData.prefixes.transition + 'Duration'] = 300 + 'ms'
+      } else if (index === lastPage) {
         style['transform'] = 'translate3D(' + this.temporaryData.lastPosWidth + 'px' + ',' + this.temporaryData.lastPosHeight + 'px' + ',0px)'
         style['opacity'] = this.temporaryData.lastOpacity
         style['zIndex'] = -1
         style[this.temporaryData.prefixes.transition + 'TimingFunction'] = 'ease'
         style[this.temporaryData.prefixes.transition + 'Duration'] = 300 + 'ms'
-        return style
+      } else {
+        style['zIndex'] = '-1'
+        style['transform'] = 'translate3D(0,0,' + -1 * visible * 60 + 'px' + ')'
       }
+      return style
     },
     // 首页样式切换
     transformIndex (index) {
-      // 处理3D效果
       if (index === this.temporaryData.currentPage) {
         let style = {}
         style['transform'] = 'translate3D(' + this.temporaryData.poswidth + 'px' + ',' + this.temporaryData.posheight + 'px' + ',0px)'
