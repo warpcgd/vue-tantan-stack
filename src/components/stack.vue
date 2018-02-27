@@ -63,7 +63,7 @@ export default {
       let offsetWidth = width - Math.abs(this.temporaryData.poswidth)
       let offsetHeight = height - Math.abs(this.temporaryData.posheight)
       let ratio = 1 - (offsetWidth * offsetHeight) / (width * height) || 0
-      return ratio
+      return ratio > 1 ? 1 : ratio
     },
     // 划出宽度比例
     offsetWidthRatio () {
