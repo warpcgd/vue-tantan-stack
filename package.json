@@ -1,7 +1,7 @@
 {
   "name": "vue-tantan-stack",
   "version": "1.0.0",
-  "description": "",
+  "description": "vue-tantan-stack,A simple stack sliding component,has easy configuration,support self-adaption / fullscreen / button / page,and is compatible with mobile and PC terminal",
   "author": {
     "name": "lixichen",
     "email": "warpcgd@qq.com"
