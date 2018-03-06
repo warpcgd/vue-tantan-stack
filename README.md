@@ -9,7 +9,7 @@
 ### 安装
 
 ```html
-  npm install vue-concise-slider --save
+  npm install vue-tantan-stack --save
 ```
 
 ### 如何使用
