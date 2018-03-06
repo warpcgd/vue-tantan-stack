@@ -5,7 +5,8 @@
 [![npm](https://img.shields.io/github/size/warpcgd/vue-concise-slider/dist/module.js.svg)](https://www.npmjs.com/package/vue-concise-slider)
 
 ![](tantan.gif)
-
+### demo
+  [demo](https://warpcgd.github.io/vue-tantan-stack/)
 ### 安装
 
 ```html
