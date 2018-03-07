@@ -81,17 +81,15 @@ export default {
     this.$on('prev', () => {
       this.prev()
     })
+    document.addEventListener('touchmove', (e) => {
+      e.preventDefault()
+    })
   },
   methods: {
-    // 阻止页面滚动
-    preventDefault (e) {
-      e.preventDefault()
-    },
     touchstart (e) {
       if (this.temporaryData.tracking) {
         return
       }
-      document.addEventListener('touchmove', this.preventDefault(e))
       // 是否为touch
       if (e.type === 'touchstart') {
         if (e.touches.length > 1) {
@@ -142,8 +140,6 @@ export default {
     touchend (e) {
       this.temporaryData.tracking = false
       this.temporaryData.animation = true
-      // 解除阻止
-      document.removeEventListener('touchmove', this.preventDefault(e))
       // 滑动结束，触发判断
       // 判断划出面积是否大于0.5
       if (this.offsetRatio >= 0.5) {
