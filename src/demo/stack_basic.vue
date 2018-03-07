@@ -1,5 +1,5 @@
 <template>
-  <div class="mid-center">
+  <div>
     <div class="stack-wrapper">
       <stack ref="stack" :pages="someList" :stackinit="stackinit"></stack>
     </div>

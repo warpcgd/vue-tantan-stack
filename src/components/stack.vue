@@ -2,14 +2,14 @@
     <ul class="stack">
       <li class="stack-item" v-for="(item, index) in pages"
       :style="[transformIndex(index),transform(index)]"
-      @touchmove.stop.prevent="touchmove"
-      @touchstart.stop.prevent="touchstart"
-      @touchend.stop.prevent="touchend"
-      @touchcancel.stop.prevent="touchend"
-      @mousedown.stop.prevent="touchstart"
-      @mouseup.stop.prevent="touchend"
-      @mousemove.stop.prevent="touchmove"
-      @mouseout.stop.prevent="touchend"
+      @touchmove.stop.capture="touchmove"
+      @touchstart.stop.capture="touchstart"
+      @touchend.stop.capture="touchend"
+      @touchcancel.stop.capture="touchend"
+      @mousedown.stop.capture="touchstart"
+      @mouseup.stop.capture="touchend"
+      @mousemove.stop.capture="touchmove"
+      @mouseout.stop.capture="touchend"
       @webkit-transition-end="onTransitionEnd(index)"
       @transitionend="onTransitionEnd(index)">
         <div v-html="item.html"></div>
@@ -99,7 +99,8 @@ export default {
           this.basicdata.start.y = e.targetTouches[0].clientY
           this.basicdata.end.x = e.targetTouches[0].clientX
           this.basicdata.end.y = e.targetTouches[0].clientY
-          this.temporaryData.offsetY = e.targetTouches[0].offsetY
+          // offsetY在touch事件中没有，只能自己计算
+          this.temporaryData.offsetY = e.targetTouches[0].pageY - this.$el.offsetParent.offsetTop
         }
       // pc操作
       } else {
@@ -214,7 +215,7 @@ export default {
       let height = this.$el.offsetHeight
       let offsetY = this.temporaryData.offsetY
       let ratio = -1 * (2 * offsetY / height - 1)
-      return ratio
+      return ratio || 0
     },
     inStack (index, currentPage) {
       let stack = []
