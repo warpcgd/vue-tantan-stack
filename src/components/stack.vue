@@ -42,6 +42,7 @@ export default {
         posheight: 0,
         lastPosWidth: '',
         lastPosHeight: '',
+        lastZindex: '',
         rotate: 0,
         lastRotate: 0,
         visible: this.stackinit.visible || 3,
@@ -141,8 +142,8 @@ export default {
       this.temporaryData.tracking = false
       this.temporaryData.animation = true
       // 滑动结束，触发判断
-      // 判断划出面积是否大于0.5
-      if (this.offsetRatio >= 0.5) {
+      // 判断划出面积是否大于0.4
+      if (this.offsetRatio >= 0.4) {
         // 计算划出后最终位置
         let ratio = Math.abs(this.temporaryData.posheight / this.temporaryData.poswidth)
         this.temporaryData.poswidth = this.temporaryData.poswidth >= 0 ? this.temporaryData.poswidth + 200 : this.temporaryData.poswidth - 200
@@ -163,6 +164,7 @@ export default {
       this.temporaryData.lastPosWidth = this.temporaryData.poswidth
       this.temporaryData.lastPosHeight = this.temporaryData.posheight
       this.temporaryData.lastRotate = this.temporaryData.rotate
+      this.temporaryData.lastZindex = 20
       // 循环currentPage
       this.temporaryData.currentPage = this.temporaryData.currentPage === this.pages.length - 1 ? 0 : this.temporaryData.currentPage + 1
       // currentPage切换，整体dom进行变化，把第一层滑动置最低
@@ -183,6 +185,7 @@ export default {
         this.temporaryData.lastOpacity = 0
         this.temporaryData.lastRotate = 0
         this.temporaryData.swipe = false
+        this.temporaryData.lastZindex = -1
       }
     },
     prev () {
@@ -257,7 +260,7 @@ export default {
       } else if (index === lastPage) {
         style['transform'] = 'translate3D(' + this.temporaryData.lastPosWidth + 'px' + ',' + this.temporaryData.lastPosHeight + 'px' + ',0px) ' + 'rotate(' + this.temporaryData.lastRotate + 'deg)'
         style['opacity'] = this.temporaryData.lastOpacity
-        style['zIndex'] = -1
+        style['zIndex'] = this.temporaryData.lastZindex
         style[this.temporaryData.prefixes.transition + 'TimingFunction'] = 'ease'
         style[this.temporaryData.prefixes.transition + 'Duration'] = 300 + 'ms'
       } else {
