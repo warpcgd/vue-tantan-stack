@@ -2,14 +2,14 @@
     <ul class="stack">
       <li class="stack-item" v-for="(item, index) in pages"
       :style="[transformIndex(index),transform(index)]"
-      @touchmove="touchmove"
-      @touchstart="touchstart"
-      @touchend="touchend"
-      @touchcancel="touchend"
-      @mousedown="touchstart"
-      @mouseup="touchend"
-      @mousemove="touchmove"
-      @mouseout="touchend"
+      @touchmove.stop.capture.prevent="touchmove"
+      @touchstart.stop.capture.prevent="touchstart"
+      @touchend.stop.capture.prevent="touchend"
+      @touchcancel.stop.capture.prevent="touchend"
+      @mousedown.stop.capture.prevent="touchstart"
+      @mouseup.stop.capture.prevent="touchend"
+      @mousemove.stop.capture.prevent="touchmove"
+      @mouseout.stop.capture.prevent="touchend"
       @webkit-transition-end="onTransitionEnd(index)"
       @transitionend="onTransitionEnd(index)">
         <div v-html="item.html"></div>
