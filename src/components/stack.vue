@@ -2,14 +2,14 @@
     <ul class="stack">
       <li class="stack-item" v-for="(item, index) in pages"
       :style="[transformIndex(index),transform(index)]"
-      @touchmove.stop.capture="touchmove"
-      @touchstart.stop.capture="touchstart"
-      @touchend.stop.capture="touchend"
-      @touchcancel.stop.capture="touchend"
-      @mousedown.stop.capture="touchstart"
-      @mouseup.stop.capture="touchend"
-      @mousemove.stop.capture="touchmove"
-      @mouseout.stop.capture="touchend"
+      @touchmove="touchmove"
+      @touchstart="touchstart"
+      @touchend="touchend"
+      @touchcancel="touchend"
+      @mousedown="touchstart"
+      @mouseup="touchend"
+      @mousemove="touchmove"
+      @mouseout="touchend"
       @webkit-transition-end="onTransitionEnd(index)"
       @transitionend="onTransitionEnd(index)">
         <div v-html="item.html"></div>
@@ -123,11 +123,11 @@ export default {
       // 记录滑动位置
       if (this.temporaryData.tracking && !this.temporaryData.animation) {
         if (e.type === 'touchmove') {
-          // e.preventDefault()
+          e.preventDefault()
           this.basicdata.end.x = e.targetTouches[0].clientX
           this.basicdata.end.y = e.targetTouches[0].clientY
         } else {
-          // e.preventDefault()
+          e.preventDefault()
           this.basicdata.end.x = e.clientX
           this.basicdata.end.y = e.clientY
         }
