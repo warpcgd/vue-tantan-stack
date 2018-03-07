@@ -123,11 +123,11 @@ export default {
       // 记录滑动位置
       if (this.temporaryData.tracking && !this.temporaryData.animation) {
         if (e.type === 'touchmove') {
-          e.preventDefault()
+          // e.preventDefault()
           this.basicdata.end.x = e.targetTouches[0].clientX
           this.basicdata.end.y = e.targetTouches[0].clientY
         } else {
-          e.preventDefault()
+          // e.preventDefault()
           this.basicdata.end.x = e.clientX
           this.basicdata.end.y = e.clientY
         }
