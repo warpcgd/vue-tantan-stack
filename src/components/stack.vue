@@ -83,10 +83,15 @@ export default {
     })
   },
   methods: {
+    // 阻止页面滚动
+    preventDefault (e) {
+      e.preventDefault()
+    },
     touchstart (e) {
       if (this.temporaryData.tracking) {
         return
       }
+      document.addEventListener('touchmove', this.preventDefault(e))
       // 是否为touch
       if (e.type === 'touchstart') {
         if (e.touches.length > 1) {
@@ -118,9 +123,11 @@ export default {
       // 记录滑动位置
       if (this.temporaryData.tracking && !this.temporaryData.animation) {
         if (e.type === 'touchmove') {
+          e.preventDefault()
           this.basicdata.end.x = e.targetTouches[0].clientX
           this.basicdata.end.y = e.targetTouches[0].clientY
         } else {
+          e.preventDefault()
           this.basicdata.end.x = e.clientX
           this.basicdata.end.y = e.clientY
         }
@@ -135,6 +142,8 @@ export default {
     touchend (e) {
       this.temporaryData.tracking = false
       this.temporaryData.animation = true
+      // 解除阻止
+      document.removeEventListener('touchmove', this.preventDefault(e))
       // 滑动结束，触发判断
       // 判断划出面积是否大于0.5
       if (this.offsetRatio >= 0.5) {
