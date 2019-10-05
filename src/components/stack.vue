@@ -299,7 +299,7 @@ export default {
     padding: 0;
   }
   .stack-item{
-    ackground: #fff;
+    background: #fff;
     height: 100%;
     width: 100%;
     border-radius: 4px;
